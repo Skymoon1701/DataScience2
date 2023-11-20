@@ -1,5 +1,6 @@
 library(tidyr)
 library(dplyr)
+library(lubridate)
 #Pregunta 1:
 #1. Cuales son las dimensiones del dataset cargado (número de filas y columnas)
 #Cantidad de Columnas
@@ -19,9 +20,11 @@ print(cantidad_ip_educativas)
 #Pregunta 3:
 #De todas las peticiones recibidas por el servidor cual es la hora en la que hay mayor volumen de peticiones HTTP de tipo "GET"?
 Peticiones_Get <- subset(epa_http, grepl("GET",X3,ignore.case=TRUE))
-Peticiones_Get$X2 <- as.POSIXct(Peticiones_Get$X2, format = "%Y-%m-%d %H:%M:%S")
-Hora_MayCantPet <- max(Peticiones_Get$X2)
-
+Peticiones_Get$X2 <- as.POSIXct(Peticiones_Get$X2, format = "[%d:%H:%M:%S]")
+Peticiones_Get1 <- dplyr::select(Peticiones_Get, X2) %>% dplyr::mutate(day = day(X2), hh = hour(X2))
+Hora_MayCantPet <- Peticiones_Get1 %>% group_by(hh) %>% mutate(hh) %>% summarise(n = n())
+Maxi <- max(Hora_MayCantPet$n)
+print (Maxi)
 
 #Pregunta 4:
 #De las peticiones hechas por instituciones educativas (.edu), ¿Cuantos bytes en total se han transmitido, en peticiones de descarga de ficheros de texto ".txt"?
@@ -39,6 +42,6 @@ print (Contador)
 #Pregunta 6:
 #Aprovechando que hemos separado la petición en 3 partes (Tipo, URL, Protocolo) ¿Cuantas peticiones NO tienen como protocolo "HTTP/0.2"?
 
-Frame_Contador <- sum(epa_http,X4!="HTTP/0.2"")
+Frame_Contador <- dplyr::filter(epa_http,X5 != 'HTTP/0.2"')
 Contador <- nrow (Frame_Contador)
-print (Frame_Contador)
+print (Contador)
