@@ -97,20 +97,6 @@ relative2absolute <- function(my_url) {
     my_url <- paste(base_domain, my_url,sep = "")
   }
   my_url
-  
-  
-  # version 2
-  # if (substring(url_enlaces, 1, 2) == "//") { 
-  #   url_abs <- paste("https:", url_enlaces, sep = "")
-  #   } else if (substring(url_enlaces, 1, 4) == "http") {
-  #     url_abs <- url_enlaces
-  #     } else if (substring(url_enlaces, 1, 1) == "/") {
-  #       url_abs <- paste(url, url_enlaces, sep = "")
-  #       } else {
-  #         url_abs <- url_enlaces
-  #         enlace_estado <- c(enlace_estado, check_link_status(url_abs))
-  #         enlaces_df <- dd2(Texto = enlaces, URL = url_enlaces, Estado = estado_enlace)
-  #       }
 }
 tabla_enlaces$enlaces_absolutos <- NULL
 tabla_enlaces$es_absoluto <- !grepl("^(/|#)", tabla_enlaces$enlaces, perl = T)
