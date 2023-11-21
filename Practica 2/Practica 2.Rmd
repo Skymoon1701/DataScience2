@@ -21,6 +21,7 @@ library (httr2)
 library (rvest)
 library (tidyr)
 library (dplyr)
+library (ggplot2)
 ```
 
 
@@ -110,4 +111,28 @@ tabla_enlaces$activo <- sapply(tabla_enlaces$enlace_absoluto, check_link_status)
 
 # Pregunta 2-1
 Un histograma con la frecuencia de aparición de los enlaces, pero separado por URLs absolutas (con “http…”) y URLs relativas. El objetivo es ver en un histograma cuantas veces aparece cada URL, pero separando por URLs absolutas y relativas. Un primer paso es añadir a nuestro data.frame una columna indicando qué filas contienen URLs con “http” al inicio y cuáles no, indicando que la URL es absoluta. Después creamos un histograma para cada grupo: en caso de usar gráficos base, creamos un histograma para cada uno, y los juntamos con la función “par”; en caso de lattice o ggplot2, le pasamos los datos y le indicamos qué columna queremos que use para separar los datos.
+```{r p2-1}
+dfEnlacesRelAb <- tabla_enlaces %>% mutate("Tipo" = if_else(startsWith(enlaces, "http"), "Absoluta", "Relativa"));
+dfHistogramaNAbRel <- dfEnlacesRelAb %>% count(contador,Tipo);
+ggplot(dfHistogramaNAbRel, aes(x=contador, y=n, fill = Tipo)) + geom_col();
+```
 
+# Pregunta 2-2
+Un gráfico de barras indicando la suma de enlaces que apuntan a otros dominios o servicios (distinto a https://www.mediawiki.org en el caso de ejemplo) vs. la suma de los otros enlaces.
+Aquí queremos distinguir enlaces que apuntan a mediawiki versus el resto. Sabemos que las URLs relativas ya apuntan dentro, por lo tanto hay que analizar las URLs absolutas y comprobar que apunten a https://www.mediawiki.org. Añadiremos a nuestro data.frame una columna indicando si el enlace es interno o no. Usaremos base, lattice o ggplot para generar este gráfico de barras, donde 
+cada barra indicará la suma de enlaces para cada grupo. El grafico resultado lo uniremos con los anteriores, en una sola imagen.
+```{r p2-2}
+dfEnlacesWiki <- tabla_enlaces %>% mutate(Wiki = if_else(startsWith(as.character(enlaces), URL), "Wiki", "No Wiki"));
+dfEnlacesWikiAg <- dfEnlacesWiki %>% count(Wiki);
+ggplot(dfEnlacesWikiAg, aes(x = Wiki, y = n)) + geom_col();
+```
+
+# Pregunta 2-3
+Un gráfico de tarta (pie chart) indicando los porcentajes de Status de nuestro análisis.
+Por ejemplo, si hay 6 enlaces con status “200” y 4 enlaces con status “404”, la tarta mostrará un 60% con la etiqueta “200” y un 40% con la etiqueta “404”. Este gráfico lo uniremos a los anteriores. El objetivo final es obtener una imagen que recopile los gráficos generados.
+```{r p3-2}
+dfRFGrafico <- tabla_enlaces %>% group_by(activo) %>% summarise(num = n(), porc = n() / nrow(tabla_enlaces) * 100);
+dfRFGrafico <- transform(dfRFGrafico, estado = as.character(activo));
+ggplot(dfRFGrafico, aes(x = "", y = porc, fill = activo)) + geom_bar(stat = "identity", width = 1) + coord_polar("y", start = 0);
+
+```
