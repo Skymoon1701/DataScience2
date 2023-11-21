@@ -1,0 +1,52 @@
+---
+title: "Practica 2"
+author: "Carlos Pastor"
+date: "2023-11-21"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages}
+# install Packages
+# install.packages("dplyr")
+
+library (XML) 
+library (httr2)
+library (rvest)
+library (tidyr)
+library (dplyr)
+```
+# Pregunta 1
+Descargar la página web de la URL indicada, y almacenarlo en un formato de R apto para ser tratado. El primer paso para realizar tareas de crawling y scraping es poder descargar los datos de la web. #Para esto usaremos la capacidad de R y de sus librerías (httr y XML) para descargar webs y almacenarlas en variables que podamos convertir en un formato fácil de analizar (p.e.de HTML a XML). 
+```{r p1}
+URL <- 'https://www.mediawiki.org/wiki/MediaWiki'
+Website <- GET(URL)
+html_content <- content(Website, "text")
+Texto <- read_html(html_content)
+```
+
+# Pregunta 2
+Analizar el contenido de la web, buscando el título de la página (que en HTML se etiqueta como “title”). En las cabeceras web encontramos información como el título, los ficheros de estilo visual, y meta-información como el nombre del autor de la página, una descripción de esta, el tipo de codificación de esta, o palabras clave que indican qué tipo de información contiene la página. Una vez descargada la página, y convertida a un formato analizable (como XML), buscaremos los elementos de tipo “title”. P.e. “<title>Titulo de Página</title>”
+```{r p2}
+html_title <- Texto %>% html_element("title") %>% html_text2()
+print (html_title)
+```
+# Pregunta 3
+Analizar el contenido de la web, buscando todos los enlaces (que en HTML se etiquetan como “a”), buscando el texto del enlace, así como la URL. Vamos a extraer, usando las funciones de búsqueda XML, todos los enlaces quesalen de esta página con tal de listarlos y poder descargarlas más tarde. Sabemos que estos son elementos de tipo “<a>”, que tienen el atributo “href” para indicar la URL del enlace. P.e. “<a href = ‘enlace’>Texto del Enlace</a>”. Del enlace nos quedaremos con la URL de destino y con el valor del enlace (texto del enlace)
+```{r p3}
+Enlaces <- Texto %>% html_elements("a")
+url_enlaces <- Enlaces %>% html_attr("href")
+texto_enlaces <- Enlaces %>% html_text2()
+dd <- data.frame(
+  enlaces = url_enlaces,
+  texto = texto_enlaces,
+  stringsAsFactors = F
+)
+
+```
